@@ -211,6 +211,7 @@ static int rm_read_audio_stream_info(AVFormatContext *s, AVIOContext *pb,
             break;
         case AV_CODEC_ID_RA_288:
             st->codec->extradata_size= 0;
+            av_freep(&st->codec->extradata);
             ast->audio_framesize = st->codec->block_align;
             st->codec->block_align = coded_framesize;
             break;
