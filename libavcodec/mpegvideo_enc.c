@@ -1416,6 +1416,7 @@ static int estimate_best_b_count(MpegEncContext *s)
     int i, j, out_size, p_lambda, b_lambda, lambda2;
     int64_t best_rd  = INT64_MAX;
     int best_b_count = -1;
+    int ret = 0;
 
     if (!c)
         return AVERROR(ENOMEM);
@@ -1491,6 +1492,10 @@ static int estimate_best_b_count(MpegEncContext *s)
         s->tmp_frames[0]->quality   = 1 * FF_QP2LAMBDA;
 
         out_size = encode_frame(c, s->tmp_frames[0]);
+        if (out_size < 0) {
+            ret = out_size;
+            goto fail;
+        }
 
         //rd += (out_size * lambda2) >> FF_LAMBDA_SHIFT;
 
@@ -1502,6 +1507,10 @@ static int estimate_best_b_count(MpegEncContext *s)
             s->tmp_frames[i + 1]->quality   = is_p ? p_lambda : b_lambda;
 
             out_size = encode_frame(c, s->tmp_frames[i + 1]);
+            if (out_size < 0) {
+                ret = out_size;
+                goto fail;
+            }
 
             rd += (out_size * lambda2) >> (FF_LAMBDA_SHIFT - 3);
         }
@@ -1509,6 +1518,10 @@ static int estimate_best_b_count(MpegEncContext *s)
         /* get the delayed frames */
         while (out_size) {
             out_size = encode_frame(c, NULL);
+            if (out_size < 0) {
+                ret = out_size;
+                goto fail;
+            }
             rd += (out_size * lambda2) >> (FF_LAMBDA_SHIFT - 3);
         }
 
@@ -1524,6 +1537,9 @@ static int estimate_best_b_count(MpegEncContext *s)
     av_freep(&c);
 
     return best_b_count;
+fail:
+    avcodec_free_context(&c);
+    return ret;
 }
 
 static int select_input_picture(MpegEncContext *s)
@@ -1604,6 +1620,8 @@ static int select_input_picture(MpegEncContext *s)
                 }
             } else if (s->b_frame_strategy == 2) {
                 b_frames = estimate_best_b_count(s);
+                if (b_frames < 0)
+                    return b_frames;
             }
 
             emms_c();
