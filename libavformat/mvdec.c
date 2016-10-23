@@ -326,6 +326,10 @@ static int mv_read_header(AVFormatContext *avctx)
         ast->codec->codec_type  = AVMEDIA_TYPE_AUDIO;
         ast->nb_frames          = vst->nb_frames;
         ast->codec->sample_rate = avio_rb32(pb);
+        if (ast->codec->sample_rate <= 0) {
+            av_log(avctx, AV_LOG_ERROR, "Invalid sample rate %d\n", ast->codec->sample_rate);
+            return AVERROR_INVALIDDATA;
+        }
         avpriv_set_pts_info(ast, 33, 1, ast->codec->sample_rate);
         if (set_channels(avctx, ast, avio_rb32(pb)) < 0)
             return AVERROR_INVALIDDATA;
