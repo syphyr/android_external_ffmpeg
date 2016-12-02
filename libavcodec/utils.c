@@ -3104,6 +3104,9 @@ int av_get_audio_frame_duration(AVCodecContext *avctx, int frame_bytes)
                 return (480 << (sr / 22050)) / ch;
             }
         }
+
+        if (id == AV_CODEC_ID_MP3)
+            return sr <= 24000 ? 576 : 1152;
     }
 
     if (ba > 0) {
