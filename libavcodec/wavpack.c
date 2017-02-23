@@ -270,7 +270,7 @@ error:
 static inline int wv_get_value_integer(WavpackFrameContext *s, uint32_t *crc,
                                        int S)
 {
-    int bit;
+    unsigned bit;
 
     if (s->extra_bits) {
         S *= 1 << s->extra_bits;
