@@ -712,7 +712,8 @@ static int parse_video_info(AVIOContext *pb, AVStream *st)
     st->codec->codec_id  = ff_codec_get_id(ff_codec_bmp_tags, tag);
     size_bmp = FFMAX(size_asf, size_bmp);
 
-    if (size_bmp > BMP_HEADER_SIZE) {
+    if (size_bmp > BMP_HEADER_SIZE &&
+        size_bmp < INT_MAX - AV_INPUT_BUFFER_PADDING_SIZE) {
         int ret;
         st->codec->extradata_size  = size_bmp - BMP_HEADER_SIZE;
         if (!(st->codec->extradata = av_malloc(st->codec->extradata_size +
