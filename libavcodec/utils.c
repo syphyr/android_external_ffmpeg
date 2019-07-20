@@ -1617,7 +1617,7 @@ end:
 
     return ret;
 free_and_end:
-    if (avctx->codec &&
+    if (avctx->codec && avctx->codec->close &&
         (avctx->codec->caps_internal & FF_CODEC_CAP_INIT_CLEANUP))
         avctx->codec->close(avctx);
 
