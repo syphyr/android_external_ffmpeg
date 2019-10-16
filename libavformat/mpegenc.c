@@ -315,7 +315,7 @@ static av_cold int mpeg_mux_init(AVFormatContext *ctx)
         if (ctx->packet_size < 20 || ctx->packet_size > (1 << 23) + 10) {
             av_log(ctx, AV_LOG_ERROR, "Invalid packet size %d\n",
                    ctx->packet_size);
-            goto fail;
+            return AVERROR(EINVAL);
         }
         s->packet_size = ctx->packet_size;
     } else
@@ -343,7 +343,7 @@ static av_cold int mpeg_mux_init(AVFormatContext *ctx)
         st     = ctx->streams[i];
         stream = av_mallocz(sizeof(StreamInfo));
         if (!stream)
-            goto fail;
+            return AVERROR(ENOMEM);
         st->priv_data = stream;
 
         avpriv_set_pts_info(st, 64, 1, 90000);
@@ -370,7 +370,7 @@ static av_cold int mpeg_mux_init(AVFormatContext *ctx)
                         break;
                 }
                 if (j == 4)
-                    goto fail;
+                    return AVERROR(ENOMEM);
                 if (st->codec->channels > 8)
                     return -1;
                 stream->lpcm_header[0] = 0x0c;
@@ -420,7 +420,7 @@ static av_cold int mpeg_mux_init(AVFormatContext *ctx)
         }
         stream->fifo = av_fifo_alloc(16);
         if (!stream->fifo)
-            goto fail;
+            return AVERROR(ENOMEM);
     }
     bitrate       = 0;
     audio_bitrate = 0;
@@ -520,11 +520,6 @@ static av_cold int mpeg_mux_init(AVFormatContext *ctx)
     s->system_header_size = get_system_header_size(ctx);
     s->last_scr           = AV_NOPTS_VALUE;
     return 0;
-
-fail:
-    for (i = 0; i < ctx->nb_streams; i++)
-        av_freep(&ctx->streams[i]->priv_data);
-    return AVERROR(ENOMEM);
 }
 
 static inline void put_timestamp(AVIOContext *pb, int id, int64_t timestamp)
@@ -1200,9 +1195,16 @@ static int mpeg_mux_end(AVFormatContext *ctx)
         stream = ctx->streams[i]->priv_data;
 
         av_assert0(av_fifo_size(stream->fifo) == 0);
-        av_fifo_freep(&stream->fifo);
     }
     return 0;
+}
+
+static void mpeg_mux_deinit(AVFormatContext *ctx)
+{
+    for (int i = 0; i < ctx->nb_streams; i++) {
+        StreamInfo *stream = ctx->streams[i]->priv_data;
+        av_fifo_freep(&stream->fifo);
+    }
 }
 
 #define OFFSET(x) offsetof(MpegMuxContext, x)
@@ -1234,6 +1236,7 @@ AVOutputFormat ff_mpeg1system_muxer = {
     .write_header      = mpeg_mux_init,
     .write_packet      = mpeg_mux_write_packet,
     .write_trailer     = mpeg_mux_end,
+    .deinit            = mpeg_mux_deinit,
     .priv_class        = &mpeg_class,
 };
 #endif
@@ -1250,6 +1253,7 @@ AVOutputFormat ff_mpeg1vcd_muxer = {
     .write_header      = mpeg_mux_init,
     .write_packet      = mpeg_mux_write_packet,
     .write_trailer     = mpeg_mux_end,
+    .deinit            = mpeg_mux_deinit,
     .priv_class        = &vcd_class,
 };
 #endif
@@ -1267,6 +1271,7 @@ AVOutputFormat ff_mpeg2vob_muxer = {
     .write_header      = mpeg_mux_init,
     .write_packet      = mpeg_mux_write_packet,
     .write_trailer     = mpeg_mux_end,
+    .deinit            = mpeg_mux_deinit,
     .priv_class        = &vob_class,
 };
 #endif
@@ -1285,6 +1290,7 @@ AVOutputFormat ff_mpeg2svcd_muxer = {
     .write_header      = mpeg_mux_init,
     .write_packet      = mpeg_mux_write_packet,
     .write_trailer     = mpeg_mux_end,
+    .deinit            = mpeg_mux_deinit,
     .priv_class        = &svcd_class,
 };
 #endif
@@ -1303,6 +1309,7 @@ AVOutputFormat ff_mpeg2dvd_muxer = {
     .write_header      = mpeg_mux_init,
     .write_packet      = mpeg_mux_write_packet,
     .write_trailer     = mpeg_mux_end,
+    .deinit            = mpeg_mux_deinit,
     .priv_class        = &dvd_class,
 };
 #endif
