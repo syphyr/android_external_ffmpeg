@@ -144,6 +144,9 @@ static int thp_read_header(AVFormatContext *s)
         }
     }
 
+    if (!thp->vst)
+        return AVERROR_INVALIDDATA;
+
     return 0;
 }
 
