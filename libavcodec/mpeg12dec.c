@@ -302,7 +302,6 @@ end:
 }
 
 /**
- * Note: this function can read out of range and crash for corrupt streams.
  * Changing this would eat up any speed benefits it has.
  * Do not use "fast" flag if you need the code to be robust.
  */
@@ -469,7 +468,6 @@ end:
 }
 
 /**
- * Note: this function can read out of range and crash for corrupt streams.
  * Changing this would eat up any speed benefits it has.
  * Do not use "fast" flag if you need the code to be robust.
  */
@@ -620,7 +618,6 @@ static inline int mpeg2_decode_block_intra(MpegEncContext *s,
 }
 
 /**
- * Note: this function can read out of range and crash for corrupt streams.
  * Changing this would eat up any speed benefits it has.
  * Do not use "fast" flag if you need the code to be robust.
  */
