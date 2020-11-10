@@ -123,6 +123,8 @@ static int get_aiff_header(AVFormatContext *s, int size,
     else
         sample_rate = (val + (1ULL<<(-exp-1))) >> -exp;
     codec->sample_rate = sample_rate;
+    if (size < 18)
+        return AVERROR_INVALIDDATA;
     size -= 18;
 
     /* get codec id for AIFF-C */
