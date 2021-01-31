@@ -567,7 +567,10 @@ static void read_apic(AVFormatContext *s, AVIOContext *pb, int taglen,
 
     /* mimetype */
     if (isv34) {
-        taglen -= avio_get_str(pb, taglen, mimetype, sizeof(mimetype));
+        int ret = avio_get_str(pb, taglen, mimetype, sizeof(mimetype));
+        if (ret < 0 || ret >= taglen)
+            goto fail;
+        taglen -= ret;
     } else {
         avio_read(pb, mimetype, 3);
         mimetype[3] = 0;
