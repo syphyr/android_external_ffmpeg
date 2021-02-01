@@ -3207,7 +3207,7 @@ int av_get_audio_frame_duration(AVCodecContext *avctx, int frame_bytes)
                 case AV_CODEC_ID_ADPCM_IMA_RAD:
                     return blocks * ((ba - 4 * ch) * 2 / ch);
                 case AV_CODEC_ID_ADPCM_MS:
-                    return blocks * (2 + (ba - 7 * ch) * 2 / ch);
+                    return blocks * (2 + (ba - 7 * ch) * 2LL / ch);
                 }
             }
 
