@@ -3195,11 +3195,15 @@ int av_get_audio_frame_duration(AVCodecContext *avctx, int frame_bytes)
             if (ba > 0) {
                 /* calc from frame_bytes, channels, and block_align */
                 int blocks = frame_bytes / ba;
+                int64_t tmp;
                 switch (avctx->codec_id) {
                 case AV_CODEC_ID_ADPCM_IMA_WAV:
                     if (bps < 2 || bps > 5)
                         return 0;
-                    return blocks * (1 + (ba - 4 * ch) / (bps * ch) * 8);
+                    tmp = blocks * (1LL + (ba - 4 * ch) / (bps * ch) * 8);
+                    if (tmp != (int)tmp)
+                        return 0;
+                    return tmp;
                 case AV_CODEC_ID_ADPCM_IMA_DK3:
                     return blocks * (((ba - 16) * 2 / 3 * 4) / ch);
                 case AV_CODEC_ID_ADPCM_IMA_DK4:
