@@ -3161,7 +3161,7 @@ int av_get_audio_frame_duration(AVCodecContext *avctx, int frame_bytes)
             case AV_CODEC_ID_ADPCM_THP:
             case AV_CODEC_ID_ADPCM_THP_LE:
                 if (avctx->extradata)
-                    return frame_bytes * 14 / (8 * ch);
+                    return frame_bytes * 14LL / (8 * ch);
                 break;
             case AV_CODEC_ID_ADPCM_XA:
                 return (frame_bytes / 128) * 224 / ch;
