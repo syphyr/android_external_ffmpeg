@@ -328,6 +328,11 @@ int ff_rm_read_mdpr_codecdata(AVFormatContext *s, AVIOContext *pb,
     if (codec_data_size == 0)
         return 0;
 
+    // Duplicate tags
+    if (   st->codec->codec_type != AVMEDIA_TYPE_UNKNOWN
+        && st->codec->codec_type != AVMEDIA_TYPE_DATA)
+        return AVERROR_INVALIDDATA;
+
     avpriv_set_pts_info(st, 64, 1, 1000);
     codec_pos = avio_tell(pb);
     v = avio_rb32(pb);
