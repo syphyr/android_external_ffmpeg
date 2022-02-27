@@ -834,6 +834,8 @@ static int avi_read_header(AVFormatContext *s)
                             memcpy(st->codec->extradata + st->codec->extradata_size - 9,
                                    "BottomUp", 9);
                     }
+                    if (st->codec->height == INT_MIN)
+                        return AVERROR_INVALIDDATA;
                     st->codec->height = FFABS(st->codec->height);
 
 //                    avio_skip(pb, size - 5 * 4);
