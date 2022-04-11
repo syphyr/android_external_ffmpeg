@@ -66,6 +66,9 @@ static int genh_read_header(AVFormatContext *s)
         return AVERROR_INVALIDDATA;
     st->codec->block_align = align * st->codec->channels;
     st->codec->sample_rate = avio_rl32(s->pb);
+    if (st->codec->sample_rate < 0)
+        return AVERROR_INVALIDDATA;
+
     avio_skip(s->pb, 4);
     st->duration = avio_rl32(s->pb);
 
