@@ -620,6 +620,8 @@ static int decode_idat_chunk(AVCodecContext *avctx, PNGDecContext *s,
     int ret;
     size_t byte_depth = s->bit_depth > 8 ? 2 : 1;
 
+    if (!p)
+        return AVERROR_INVALIDDATA;
     if (!(s->hdr_state & PNG_IHDR)) {
         av_log(avctx, AV_LOG_ERROR, "IDAT without IHDR\n");
         return AVERROR_INVALIDDATA;
@@ -1273,6 +1275,10 @@ exit_loop:
         return 0;
     }
 
+    if (!p)
+        return AVERROR_INVALIDDATA;
+
+
     if (s->bits_per_pixel <= 4)
         handle_small_bpp(s, p);
 
@@ -1417,7 +1423,7 @@ static int decode_frame_apng(AVCodecContext *avctx,
         s->zstream.zfree  = ff_png_zfree;
 
         bytestream2_init(&s->gb, avctx->extradata, avctx->extradata_size);
-        if ((ret = decode_frame_common(avctx, s, p, avpkt)) < 0)
+        if ((ret = decode_frame_common(avctx, s, NULL, avpkt)) < 0)
             goto end;
     }
 
