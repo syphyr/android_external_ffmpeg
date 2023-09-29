@@ -122,7 +122,7 @@ static int dxa_read_header(AVFormatContext *s)
         if(ast->codec->block_align) {
             if (c->bpc > INT_MAX - ast->codec->block_align + 1)
                 return AVERROR_INVALIDDATA;
-            c->bpc = ((c->bpc + ast->codec->block_align - 1) / ast->codec->block_align) * ast->codec->block_align;
+            c->bpc = ((c->bpc - 1 + ast->codec->block_align) / ast->codec->block_align) * ast->codec->block_align;
         }
         c->bytes_left = fsize;
         c->wavpos = avio_tell(pb);
