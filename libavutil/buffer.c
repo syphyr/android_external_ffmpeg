@@ -220,7 +220,10 @@ AVBufferPool *av_buffer_pool_init(int size, AVBufferRef* (*alloc)(int size))
     if (!pool)
         return NULL;
 
-    ff_mutex_init(&pool->mutex, NULL);
+    if (ff_mutex_init(&pool->mutex, NULL)) {
+        av_free(pool);
+        return NULL;
+    }
 
     pool->size     = size;
     pool->alloc    = alloc ? alloc : av_buffer_alloc;
