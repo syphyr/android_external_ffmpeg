@@ -119,6 +119,9 @@ static unsigned int mszh_decomp(const unsigned char * srcptr, int srclen, unsign
         }
     }
 
+    if (destptr < destptr_end)
+        memset(destptr, 0, destptr_end - destptr);
+
     return destptr - destptr_bak;
 }
 
