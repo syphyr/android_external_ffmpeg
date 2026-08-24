@@ -284,6 +284,10 @@ static int config_input(AVFilterLink *inlink)
     if (ARCH_X86)
         ff_hqdn3d_init_x86(s);
 
+    s->format = inlink->format;
+    s->width  = inlink->w;
+    s->height = inlink->h;
+
     return 0;
 }
 
@@ -295,11 +299,23 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     AVFrame *out;
     int c, direct = av_frame_is_writable(in) && !ctx->is_disabled;
+    int err;
+
+    if (in->width != s->width || in->height != s->height) {
+        inlink->w = in->width;
+        inlink->h = in->height;
+        if ((err = config_input(inlink)) < 0) {
+            av_frame_free(&in);
+            return err;
+        }
+        outlink->w = in->width;
+        outlink->h = in->height;
+    }
 
     if (direct) {
         out = in;
     } else {
-        out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
+        out = ff_get_video_buffer(outlink, in->width, in->height);
         if (!out) {
             av_frame_free(&in);
             return AVERROR(ENOMEM);
