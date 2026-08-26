@@ -106,7 +106,7 @@ static int dvbsub_parse(AVCodecParserContext *s,
         }
     }
 
-    if (buf_size - buf_pos + pc->packet_index > PARSE_BUF_SIZE)
+    if (buf_size - buf_pos > PARSE_BUF_SIZE - pc->packet_index)
         return -1;
 
 /* if not currently in a packet, discard data */
